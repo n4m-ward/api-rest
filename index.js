@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const port = 4000;
 
 
 const JWTSecret = "djkshahjksdajksdhasjkdhasjkdhasjkdhasjkd";
@@ -14,28 +15,23 @@ app.use(bodyParser.json());
 
 function auth(req, res, next){
     const authToken = req.headers['authorization'];
-
     if(authToken != undefined){
-
         const bearer = authToken.split(' ');
         var token = bearer[1];
-
-        jwt.verify(token,JWTSecret,(err, data) => {
+        jwt.verify(token,JWTSecret,(err,data)=>{
             if(err){
-                res.status(401);
-                res.json({err:"Token inválido!"});
+                res.status(401)
+                res.json({err:"token invalido!"})
             }else{
-
-                req.token = token;
-                req.loggedUser = {id: data.id,email: data.email};
-                req.empresa = "Guia do programador";                
+                req.loggedUser = {id: data.id, email:data.email}
                 next();
             }
-        });
+        })
     }else{
-        res.status(401);
-        res.json({err:"Token inválido!"});
-    } 
+        res.status(401)
+        res.json({err:"Token invalido"})
+    }
+    
 }
 
 var DB = {
@@ -62,22 +58,22 @@ var DB = {
     users: [
         {
             id: 1,
-            name: "Victor Lima",
-            email: "victordevtb@guiadoprogramador.com",
-            password: "nodejs<3"
+            name: "Jorge gabriel",
+            email: "gabrielphp00@gmail.com",
+            password: "1234"
         },
         {
             id: 20,
-            name: "Guilherme",
-            email: "guigg@gmail.com",
-            password: "java123"
+            name: "joice vieira",
+            email: "joicepudim6@gmail.com",
+            password: "1234"
         }
     ]
 }
 
 app.get("/games",auth,(req, res) => {
     res.statusCode = 200;
-    res.json({empresa: req.empresa,user: req.loggedUser,games: DB.games});
+    res.json(DB.games);
 });
 
 app.get("/game/:id",auth,(req, res) => {
@@ -101,7 +97,7 @@ app.get("/game/:id",auth,(req, res) => {
 app.post("/game",auth,(req, res) => { 
     var {title, price, year} = req.body;
     DB.games.push({
-        id: 2323,
+        id,
         title,
         price,
         year
@@ -195,6 +191,6 @@ app.post("/auth",(req, res) => {
     }
 });
 
-app.listen(45679,() => {
-    console.log("API RODANDO!");
+app.listen(port,() => {
+    console.log(`API RODANDO NA PORTA ${port}!`);
 });

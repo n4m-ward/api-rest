@@ -77,7 +77,30 @@ app.get("/games",auth,(req, res) => {
 });
 
 app.get("/game/:id",auth,(req, res) => {
-    if(isNaN(req.params.id)){
+    var id = req.params.id;
+    var HATEOAS = [
+        {
+            href:"http://localhost:4000/game/"+id,
+            method:'DELETE',
+            rel:"delete_game"
+        },
+        {
+            href:"http://localhost:4000/game/"+id,
+            method:"GET",
+            rel:"get_game"
+        },
+        {
+            href:"http://localhost:4000/game/"+id,
+            method:"PUT",
+            rel:"edit_game"
+        },
+        {
+            href:"http://localhost:4000/games",
+            method:"GET",
+            rel:"get_all_games"
+        }
+    ]
+    if(isNaN(id)){
         res.sendStatus(400);
     }else{
         
@@ -87,7 +110,7 @@ app.get("/game/:id",auth,(req, res) => {
 
         if(game != undefined){
             res.statusCode = 200;
-            res.json(game);
+            res.json({game: game, _links: HATEOAS});
         }else{
             res.sendStatus(404);
         }
@@ -169,7 +192,7 @@ app.post("/auth",(req, res) => {
             if(user.password == password){
                 jwt.sign({id: user.id, email: user.email},JWTSecret,{expiresIn:'48h'},(err, token) => {
                     if(err){
-                        res.status(400);
+                        res.status(500);
                         res.json({err:"Falha interna"});
                     }else{
                         res.status(200);
